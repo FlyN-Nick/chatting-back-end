@@ -10,7 +10,7 @@ let MessageModel = require('./schema/message');	 // schema for each individual m
 
 let cors = require('cors');
 app.use(express.json());
-app.use(cors());
+app.use('*', cors());
 
 app.put('/find', function(req, res, next) // if the user is finding a chatroom
 {
