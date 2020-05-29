@@ -1,15 +1,19 @@
 {
-  "name": "ChatN",
-  "description": "An anonymous chatting app to learn full stack web development.",
-  "version": "0.1.0",
-  "private": true,
+  "name": "chatting-back-end",
+  "version": "1.0.0",
+  "description": "A anonymous chatting app to learn full stack web development.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "FlyN Nick",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "mongoose": "^5.9.2",
-    "node": "12.14.1"
-  },
-  "scripts": {
-    "start": "node server.js"
+    "express": "^4.17.1",
+    "mongodb": "^3.5.8",
+    "mongoose": "^5.9.16"
   },
   "engines": {
     "node": "12.14.x",

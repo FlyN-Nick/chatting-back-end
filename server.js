@@ -1,6 +1,7 @@
 const { Console } = require('console');
 const express = require('express');
 const app = express();
+const cors = require('cors');
 let database = require('./database');
 let ChatRoomModel = require('./schema/chatRoom');	 // schema for the chatrooms
 let IDTrackerModel = require('./schema/idTracker'); // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
@@ -8,7 +9,7 @@ let EndorsementModel = require('./schema/endorsement'); // schema for tracking t
 let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
 let MessageModel = require('./schema/message');	 // schema for each individual message
 
-let cors = require('cors');
+console.log('May node be with you!')
 app.use(express.json());
 app.use('*', cors());
 
@@ -459,3 +460,4 @@ function endorser(userID, endorse)
 		})
 		.catch(err => console.error(err))
 }
+
