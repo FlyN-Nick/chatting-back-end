@@ -1,5 +1,6 @@
 {
   "name": "ChatN",
+  "description": "An anonymous chatting app to learn full stack web development.",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -35,5 +36,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "engines": {
+    "node": "12.14.x",
+    "npm": "6.x"
   }
 }
