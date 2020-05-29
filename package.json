@@ -12,7 +12,8 @@
     "mongoose": "^5.9.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.3.0"
+    "react-scripts": "3.3.0",
+    "node": "12.14.1"
   },
   "scripts": {
     "start": "node server.js",
