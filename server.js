@@ -9,7 +9,7 @@ let EndorsementModel = require('./schema/endorsement'); // schema for tracking t
 let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
 let MessageModel = require('./schema/message');	 // schema for each individual message
 
-console.log('May node be with you!')
+console.log('May node be with you!') // funny
 app.use(express.json());
 app.use('*', cors());
 
