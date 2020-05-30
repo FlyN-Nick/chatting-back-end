@@ -3,8 +3,8 @@ let ChatRoomModel = require('./schema/chatRoom');
 let IDTrackerModel = require('./schema/idTracker');
 let EndrosementModel = require('./schema/endorsement');
 
-const server = 'localHost';
-const database = 'chattingHosting';  // I've gone through many databases, for several times the database became incompatible with new code 
+const server = 'localhost:27017';
+const database = 'chattingBackendHosting';   
 
 class Database 
 {
