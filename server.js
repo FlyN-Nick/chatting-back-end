@@ -12,14 +12,15 @@ console.log('May node be with you!') // funny
 app.use(express.json());
 //app.use('*', cors());
 //app.options('*', cors());
-var whitelist = ['https://chat-n-5b27d.web.app', 'https://chat-n-5b27d.firebaseapp.com', 'https://flynchattin.web.app', 'https://flynchattin.firebaseapp.com']
-var corsOptionsDelegate = function (req, callback) 
+var whitelist = ['https://chat-n-5b27d.web.app', 'https://chat-n-5b27d.firebaseapp.com', 'https://flynchattin.web.app', 'https://flynchattin.firebaseapp.com'] // websites that are allowed to fetch from the backend (them being my frontend)
+var corsOptionsDelegate = function (req, callback)  // if the website is my frontend, cors is allowed
 {
   var corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) { corsOptions = { origin: true } } 
   else { corsOptions = { origin: false } }
   callback(null, corsOptions) 
 }
+// all of these options requests are for preflight, all of which only my frontend is allowed
 app.options('/find', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
@@ -50,7 +51,7 @@ app.options('/send', cors(corsOptionsDelegate), function(req, res, next)
 })
 app.get('/', function(req, res, next)
 {
-	res.json({msg: 'Welcome to the backend.'})
+	res.json({msg: 'Welcome to the backend :)'})
 })
 app.put('/find', cors(corsOptionsDelegate), function(req, res, next) // if the user is finding a chatroom
 {

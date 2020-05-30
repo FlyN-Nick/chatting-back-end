@@ -22,7 +22,8 @@ class Database
 			})
 			.catch(err => 
 			{
-				console.error('Database connection error');
+				console.error('Database connection error:');
+				console.error(err);
 			})
 	}
 }
