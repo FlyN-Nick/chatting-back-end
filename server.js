@@ -48,6 +48,10 @@ app.options('/send', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
 })
+app.get('/', function(req, res, next)
+{
+	res.json({msg: 'Welcome to the backend.'})
+})
 app.put('/find', cors(corsOptionsDelegate), function(req, res, next) // if the user is finding a chatroom
 {
 	console.log("FIND REQUEST OCCURED, RECEIVED:");
