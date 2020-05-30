@@ -20,7 +20,7 @@ var corsOptionsDelegate = function (req, callback)  // if the website is my fron
   else { corsOptions = { origin: false } }
   callback(null, corsOptions) 
 }
-// all of these options requests are for preflight, all of which only my frontend is allowed
+// all of these options requests are for cors preflight, all of which only my frontend is allowed
 app.options('/find', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
