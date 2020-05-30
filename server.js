@@ -8,12 +8,47 @@ let IDTrackerModel = require('./schema/idTracker'); // schema for tracking all t
 let EndorsementModel = require('./schema/endorsement'); // schema for tracking the endorsement level of users
 let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
 let MessageModel = require('./schema/message');	 // schema for each individual message
-
 console.log('May node be with you!') // funny
 app.use(express.json());
-app.use('*', cors());
-
-app.put('/find', function(req, res, next) // if the user is finding a chatroom
+//app.use('*', cors());
+//app.options('*', cors());
+var whitelist = ['https://chat-n-5b27d.web.app', 'https://chat-n-5b27d.firebaseapp.com', 'https://flynchattin.web.app', 'https://flynchattin.firebaseapp.com']
+var corsOptionsDelegate = function (req, callback) 
+{
+  var corsOptions;
+  if (whitelist.indexOf(req.header('Origin')) !== -1) { corsOptions = { origin: true } } 
+  else { corsOptions = { origin: false } }
+  callback(null, corsOptions) 
+}
+app.options('/find', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.options('/leave', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.options('/get', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.options('/getEndorsementLevel', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.options('/endorse', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.options('/delete', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.options('/send', cors(corsOptionsDelegate), function(req, res, next)
+{
+	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+})
+app.put('/find', cors(corsOptionsDelegate), function(req, res, next) // if the user is finding a chatroom
 {
 	console.log("FIND REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
@@ -46,7 +81,7 @@ app.put('/find', function(req, res, next) // if the user is finding a chatroom
 		})
 		.catch(err => console.error(err))
 })
-app.put('/leave', function(req, res, next) // if the user is leaving their chatroom
+app.put('/leave', cors(corsOptionsDelegate), function(req, res, next) // if the user is leaving their chatroom
 {
 	console.log("LEAVE REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
@@ -89,7 +124,7 @@ app.put('/leave', function(req, res, next) // if the user is leaving their chatr
 		})
 		.catch(err => console.error(err))
 })
-app.put('/get', function(req, res, next) // if the user is getting the chatroom (checking for new messages)
+app.put('/get', cors(corsOptionsDelegate), function(req, res, next) // if the user is getting the chatroom (checking for new messages)
 {
 	console.log("GET REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
@@ -107,7 +142,7 @@ app.put('/get', function(req, res, next) // if the user is getting the chatroom 
 		})
 		.catch(err => console.error("Error occured: " + err))
 })
-app.put('/getEndorsementLevel', function(req, res, next) // if the user is getting their endorsement level 
+app.put('/getEndorsementLevel', cors(corsOptionsDelegate), function(req, res, next) // if the user is getting their endorsement level 
 {
 	console.log("GET ENDORSE REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
@@ -133,13 +168,13 @@ app.put('/getEndorsementLevel', function(req, res, next) // if the user is getti
 		})
 		.catch(err => console.error(err))
 })
-app.put('/endorse', function(req, res, next) // endorses user 
+app.put('/endorse', cors(corsOptionsDelegate), function(req, res, next) // endorses user 
 {
 	console.log("ENDORSE REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
 	endorser(req.body.userID, true)
 })
-app.put('/delete', function(req, res, next) // if the user is deleting (a) message(s) in their chatroom
+app.put('/delete', cors(corsOptionsDelegate), function(req, res, next) // if the user is deleting (a) message(s) in their chatroom
 {
 	console.log("DELETE REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
@@ -163,7 +198,7 @@ app.put('/delete', function(req, res, next) // if the user is deleting (a) messa
 	 	})
 	  	.catch(err => console.error(err))
 })
-app.post('/send', function(req, res, next) // if the user is sending a message
+app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the user is sending a message
 {
 	console.log("SEND REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
