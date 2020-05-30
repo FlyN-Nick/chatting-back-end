@@ -5,12 +5,15 @@ let EndrosementModel = require('./schema/endorsement');
 
 const atlasUsername = 'FlyNNick'
 const atlasPassword = 'yOiR5KZV7Sa36ANE'
+const atlasShell = 'mongo "mongodb+srv://chatn-xjdcp.mongodb.net/test" --username FlyNNick'
+//authSource=admin&
 const atlasURI = 'mongodb+srv://${atlasUsername}:${atlasPassword}@chatn-xjdcp.mongodb.net/test?retryWrites=true&w=majority'
 const localURI = 'mongodb://localhost:27017/chattingLocal'
 const local = false;
+
 function connectToWhere()
 {
-	if (local) { return localURI; }
+	if (local) { return localURI }
 	else { return atlasURI }
 }
 class Database 
