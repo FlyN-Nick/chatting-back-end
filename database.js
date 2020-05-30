@@ -17,7 +17,7 @@ const local = false;
 function connectToWhere()
 {
 	if (local) { return localURI }
-	else { return atlasOldURI }
+	else { return process.env.MONGODB_URI }
 }
 class Database 
 {
