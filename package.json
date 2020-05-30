@@ -13,7 +13,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^3.5.8",
-    "mongoose": "^5.9.16"
+    "mongoose": "^5.9.16",
+    "validator": "^13.0.0"
   },
   "engines": {
     "node": "12.14.x",
