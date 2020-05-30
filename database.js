@@ -3,9 +3,11 @@ let ChatRoomModel = require('./schema/chatRoom');
 let IDTrackerModel = require('./schema/idTracker');
 let EndrosementModel = require('./schema/endorsement');
 
-const server = 'localhost:27017';
-const database = 'chattingBackendHosting';   
-
+//const server = 'localhost';
+//const database = 'chattingBackendHosting';  
+const atlasUsername = 'FlyNNick'
+const atlasPassword = 'yOiR5KZV7Sa36ANE'
+const atlas = 'mongodb+srv://${atlasUsername}:${atlasPassword}@chatn-xjdcp.mongodb.net/test?retryWrites=true&w=majority'
 class Database 
 {
 	constructor()    
@@ -15,7 +17,7 @@ class Database
 
 	_connect()
 	{
-		mongoose.connect(process.env.MONGODB_URI || 'mongodb://${server}/${database}', { useNewUrlParser: true })
+		mongoose.connect(atlas, { useNewUrlParser: true })
 			.then(() => 
 			{
 				console.log('Database connection successful');
