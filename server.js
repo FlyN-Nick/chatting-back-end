@@ -8,7 +8,7 @@ let IDTrackerModel = require('./schema/idTracker'); // schema for tracking all t
 let EndorsementModel = require('./schema/endorsement'); // schema for tracking the endorsement level of users
 let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
 let MessageModel = require('./schema/message');	 // schema for each individual message
-console.log('May node be with you!') // funny
+console.log('May node be with you!') // *so* funny
 app.use(express.json());
 //app.use('*', cors());
 //app.options('*', cors());

@@ -3,8 +3,6 @@ let ChatRoomModel = require('./schema/chatRoom');
 let IDTrackerModel = require('./schema/idTracker');
 let EndrosementModel = require('./schema/endorsement');
 
-//const server = 'localhost';
-//const database = 'chattingBackendHosting';  
 const atlasUsername = 'FlyNNick'
 const atlasPassword = 'yOiR5KZV7Sa36ANE'
 const atlasURI = 'mongodb+srv://${atlasUsername}:${atlasPassword}@chatn-xjdcp.mongodb.net/test?retryWrites=true&w=majority'
