@@ -405,7 +405,7 @@ app.listen(portNum, function()
 													if (docsCheck(docs))
 													{
 														console.log("There was already an UserIDTrackerModel:");
-														console.dir(docs):
+														console.dir(docs);
 													}
 													else
 													{
