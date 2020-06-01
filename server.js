@@ -4,10 +4,12 @@ const app = express();
 const cors = require('cors');
 let database = require('./database');
 let ChatRoomModel = require('./schema/chatRoom');	 // schema for the chatrooms
-let IDTrackerModel = require('./schema/idTracker'); // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
+let ChatroomIDTrackerModel = require('./schema/chatroomIDTracker'); // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
 let EndorsementModel = require('./schema/endorsement'); // schema for tracking the endorsement level of users
 let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
 let MessageModel = require('./schema/message');	 // schema for each individual message
+//let UserIDModel = require('./schema/userID'); // schema for each individual firebase id display id pair
+//let UserIDTrackerModel = require('./schema/userIDTracker') // schema for tracking all id pairs
 console.log('May node be with you!') // *so* funny
 app.use(express.json());
 //app.use('*', cors());
@@ -244,18 +246,23 @@ app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the 
 		.catch(err => console.error(err))
 })
 
-// starting the backend, just makes an IDTrackerModel if there isn't one already, same with EndorsementModel
+// starting the backend, just makes an ChatroomIDTrackerModel if there isn't one already, same with EndorsementModel, and same with UserIDTrackerModel
+// the only scenario where these models don't exist is if the backend is being run for the first time
+// the only possibilities should be all of the models exist, or none of them do
+// but I still handle cases where say, only one of them exists, just to be careful
+// but this results in a lot of reduntant code in nested if statements
+// EDIT: I HAVE DECIDED TO COMMENT ALL MY USERIDTRACKERMODEL CODE FOR I DECIDED THAT IT DID NOT IMPROVE MY CODE, LOOK AT IDCONVERTER FUNCTION FOR MORE DETAILS
 let portNum = process.env.PORT || 42069;
 app.listen(portNum, function()
 {
 	console.log("SERVER INITIATED on port number " + portNum);
-	IDTrackerModel
+	ChatroomIDTrackerModel
 		.find({ id: '0' })
 		.then(docs => 
 		{ 
 			if (docsCheck(docs))
 			{
-				console.log("There was already an IDTrackerModel:"); 
+				console.log("There was already an ChatroomIDTrackerModel:"); 
 				console.dir(docs);
 				EndorsementModel
 					.find({ id: '0'})
@@ -265,6 +272,31 @@ app.listen(portNum, function()
 						{
 							console.log("There was already an EndorsementModel:");
 							console.dir(docs);
+							/*UserIDTrackerModel
+								.find({ id: '0' })
+								.then(docs =>
+								{
+									if (docsCheck(docs))
+									{
+										console.log("There was already an UserIDTrackerModel:");
+										console.dir(docs):
+									}
+									else
+									{
+										let model = new UserIDTrackerModel({
+											id: '0',
+											userIDPairs: []
+										})
+										model.save()
+											.then(doc =>
+											{
+												console.log("New UserIDTrackerModel:");
+												console.dir(doc);
+											})
+											.catch(err => console.error(err))
+									}
+								})
+								.catch(err => console.error(err))*/
 						}
 						else
 						{
@@ -278,6 +310,31 @@ app.listen(portNum, function()
 								{
 									console.log("New EndorsementModel:");
 									console.dir(doc);
+									/*UserIDTrackerModel
+										.find({ id: '0' })
+										.then(docs =>
+										{
+											if (docsCheck(docs))
+											{
+												console.log("There was already an UserIDTrackerModel:");
+												console.dir(docs):
+											}
+											else
+											{
+												let model = new UserIDTrackerModel({
+													id: '0',
+													userIDPairs: []
+												})
+												model.save()
+													.then(doc =>
+													{
+														console.log("New UserIDTrackerModel:");
+														console.dir(doc);
+													})
+													.catch(err => console.error(err))
+											}
+										})
+										.catch(err => console.error(err))*/
 								})
 								.catch(err => console.error(err))
 						}
@@ -287,7 +344,7 @@ app.listen(portNum, function()
 			}
 			else
 			{
-				let tracker = new IDTrackerModel({
+				let tracker = new ChatroomIDTrackerModel({
 					id: '0',
 					chatRoomIDs: []
 				});
@@ -300,7 +357,35 @@ app.listen(portNum, function()
 							.find({ id: '0'})
 							.then(docs => 
 							{
-								if (docsCheck(docs)) { console.log("There was already an EndorsementModel") }
+								if (docsCheck(docs)) 
+								{ 
+									console.log("There was already an EndorsementModel"); 
+									/*UserIDTrackerModel
+										.find({ id: '0' })
+										.then(docs =>
+										{
+											if (docsCheck(docs))
+											{
+												console.log("There was already an UserIDTrackerModel:");
+												console.dir(docs):
+											}
+											else
+											{
+												let model = new UserIDTrackerModel({
+													id: '0',
+													userIDPairs: []
+												})
+												model.save()
+													.then(doc =>
+													{
+														console.log("New UserIDTrackerModel:");
+														console.dir(doc);
+													})
+													.catch(err => console.error(err))
+											}
+										})
+										.catch(err => console.error(err))*/
+								}
 								else
 								{
 									let model = new EndorsementModel({
@@ -313,6 +398,31 @@ app.listen(portNum, function()
 										{
 											console.log("New EndorsementModel:");
 											console.dir(doc);
+											UserIDTrackerModel
+												.find({ id: '0' })
+												.then(docs =>
+												{
+													if (docsCheck(docs))
+													{
+														console.log("There was already an UserIDTrackerModel:");
+														console.dir(docs):
+													}
+													else
+													{
+														let model = new UserIDTrackerModel({
+															id: '0',
+															userIDPairs: []
+														})
+														model.save()
+															.then(doc =>
+															{
+																console.log("New UserIDTrackerModel:");
+																console.dir(doc);
+															})
+															.catch(err => console.error(err))
+													}
+												})
+												.catch(err => console.error(err))
 										})
 										.catch(err => console.error(err))
 								}
@@ -333,7 +443,7 @@ function makeNewChatRoom(userID) // makes a new chatroom
   	let random_id = '';
   	let options = { new: true };
   	let query = { id: "0"};
-  	IDTrackerModel 
+  	ChatroomIDTrackerModel 
   			.find({ id: '0' }).lean()
   			.then(doc =>
   			{
@@ -356,7 +466,7 @@ function makeNewChatRoom(userID) // makes a new chatroom
 			  	console.log("New chatroom ids:");
 			  	console.dir(ids);
 			    let update = { $set: { chatRoomIDs: ids } };
-			    IDTrackerModel.findOneAndUpdate(query, update, options).lean()
+			    ChatroomIDTrackerModel.findOneAndUpdate(query, update, options).lean()
 			    	.then(doc => 
 			    	{ 
 			    		console.log("RANDOM ID FOR CHATROOM GENERATED.");
@@ -500,4 +610,75 @@ function endorser(userID, endorse)
 		})
 		.catch(err => console.error(err))
 }
+// I have decided that using the UserIDTrackerModel would be useless and just create a lot of needless work
+// esentially, what I was planning to do, was for the user to fetch from the server with their firebaseID
+// but in actual mongoDB, everything would be stored with their displayID
+// so I made a converter function that would convert from the firebaseID to their displayID
+// the whole reasoning for this was that, the displayIDs are easy to guess
+// they are short and only contain numbers, and use a bad pseudorandom number generator to generate
+// so someone could try to use someone else's account by just guessing an id
+// or if they were chatting with someone, they would be able to see their id
+// and then could try to use their account
+// whereas, the firebaseid is very unique
+// very hard to guess
+// and the user can only get access to it by logging in
+// if you have looked at the front end code, you log in to firebase with your display id and password
+// and that's the thing
+// even if someone knows your display id
+// they still need to know your password to fetch from the sever
+// (this is because of how I structured the front end code: it won't start fetching with the display id until the user has logged into firebase with that id)
+// and, I have only authorized my front end website to fetch from the backend, so they would not be able to write code that overrided that check
+// so regardless of whether the firebase id or the display id would be used to fetch from the server
+// you still need to log in
+// I still learned a lot while writing the code for this though.
 
+// Also, the reason why implementing this function would be so much work
+// is that, it's not as simple as just putting this function around every reference to a user id when they are fetching
+// because since this has to be async (because of the mongodb .then promise)
+// I had to use a callback function as a parameter
+
+// Also, yes I know that multi line comments are a thing, but I typically use them only when I am commenting out code 
+
+// description of function: converts firebaseID to displayID
+// if the user signed up for the first time
+// the displayID parameter is provided, and the user id pair is added to the UserIDTrackerModel
+// the function provides a callback function with the displayID as its parameter
+/*function idConverter(firebaseID, displayID, callback)
+{
+	UserIDTrackerModel
+		.find({ id: '0' }).lean()
+		.then(docs =>
+		{
+			let userIDPairs = docs[0].userIDPairs;
+			if (displayID)
+			{
+				let userIDPair = new UserIDModel({
+					firebaseID: firebaseID,
+					displayID: displayID
+				});
+				userIDPairs.push(userIDPair)
+				let query = { id: '0' };
+				let update = { $set: { userIDPairs: userIDPairs }}
+				let options = { new: true };
+				UserIDTrackerModel.findOneAndUpdate(query, update, options)
+					.then(doc =>
+					{
+						console.log("User successfully added to user id pair tracker.");
+						console.dir(doc);
+						callback(displayID);
+					})
+					.catch(err => console.error(err))
+			}
+			else
+			{
+				for (userIDPair of userIDPairs)
+				{
+					if (UserIDPair.firebaseID === firebaseID)
+					{
+						callback(UserIDPair.displayID);
+					}
+				}
+			}
+		}
+		.catch(console.error(err))
+}*/
