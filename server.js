@@ -351,7 +351,7 @@ app.listen(portNum, function()
 				tracker.save()
 					.then(doc =>
 					{	
-						console.log("New IDTracker:");
+						console.log("New ChatroomIDTracker:");
 						console.dir(doc);
 						EndorsementModel
 							.find({ id: '0'})
