@@ -1,7 +1,4 @@
 let mongoose = require('mongoose');
-let ChatRoomModel = require('./schema/chatRoom');
-let IDTrackerModel = require('./schema/idTracker');
-let EndrosementModel = require('./schema/endorsement');
 
 const atlasAdminURI = process.env.ATLAS_ADMIN_URI;
 const atlasNonAdminURI = process.env.ATLAS_NONADMIN_URI;
