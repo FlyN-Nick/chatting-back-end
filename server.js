@@ -398,7 +398,7 @@ app.listen(portNum, function()
 										{
 											console.log("New EndorsementModel:");
 											console.dir(doc);
-											UserIDTrackerModel
+											/*UserIDTrackerModel
 												.find({ id: '0' })
 												.then(docs =>
 												{
@@ -422,7 +422,7 @@ app.listen(portNum, function()
 															.catch(err => console.error(err))
 													}
 												})
-												.catch(err => console.error(err))
+												.catch(err => console.error(err))*/
 										})
 										.catch(err => console.error(err))
 								}
