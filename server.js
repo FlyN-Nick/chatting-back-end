@@ -252,7 +252,7 @@ app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the 
 // but I still handle cases where say, only one of them exists, just to be careful
 // but this results in a lot of reduntant code in nested if statements
 // EDIT: I HAVE DECIDED TO COMMENT ALL MY USERIDTRACKERMODEL CODE FOR I DECIDED THAT IT DID NOT IMPROVE MY CODE, LOOK AT IDCONVERTER FUNCTION FOR MORE DETAILS
-let portNum = process.env.PORT || 42069;
+let portNum = process.env.PORT || 42069; // process.env.PORT is a heroku config var, if the back end is being run locally and therefore can't access this var, it'll instead use 42069
 app.listen(portNum, function()
 {
 	console.log("SERVER INITIATED on port number " + portNum);
