@@ -21,7 +21,7 @@ class Database
 		 * One common reason is that you're trying to access the database from an IP that isn't whitelisted. 
 		 * Make sure your current IP address is on your Atlas cluster's IP whitelist: https://docs.atlas.mongodb.com/security-whitelist/
 		 */
-		mongoose.connect(/*process.env.ATLAS_ADMIN_URI || process.env.ATLAS_NONADMIN_URI || */process.env.MONGODB_URI || localURI , { useUnifiedTopology: true, useNewUrlParser: true })
+		mongoose.connect(process.env.ATLAS_ADMIN_URI || process.env.ATLAS_NONADMIN_URI || process.env.MONGODB_URI || localURI , { useUnifiedTopology: true, useNewUrlParser: true })
 			.then(() => 
 			{
 				console.log('Database connection successful');
