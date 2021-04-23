@@ -80,7 +80,7 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 			else { res.send(findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
 		}
 	}
-	catch(err) { consoler.error(err) }
+	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 })
 app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the user is leaving their chatroom
 {
@@ -111,10 +111,10 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 				console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
 				console.dir(docs); 
 			}
-			else { console.error("Error: chatter requested to leave the chatroom, but wasn't in it..."); }
+			else { console.error("ERROR: chatter requested to leave the chatroom, but wasn't in it..."); }
 		}
 	} 
-	catch (err) { consoler.error(err) }
+	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 })
 app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the user is getting the chatroom (checking for new messages)
 {
@@ -129,35 +129,34 @@ app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the us
 			console.log("HTTP GETTER SUCCESSFULL. SENT:");
 			console.dir(docs);
 		}
-		else { console.error("Chatter's chatroom could not be get..."); }
+		else { console.error("ERROR: Chatter's chatroom could not be get..."); }
 	}
-	catch(err) { console.error(err) }
+	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 })
-app.put('/getEndorsementLevel', cors(corsOptionsDelegate), function(req, res, next) // if the user is getting their endorsement level 
+app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next) => // if the user is getting their endorsement level 
 {
-	console.log("GET ENDORSE REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	EndorsementModel
-		.find({ id: "0" })
-		.then(docs =>
+	try 
+	{
+		console.log("GET ENDORSE REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		let docs = await EndorsementModel.find({ id: "0" })
+		if (docsCheck(docs))
 		{
-			if (docsCheck(docs))
+			let endorsements = docs[0].Endorsements
+			for (endorsement of endorsements)
 			{
-				let endorsements = docs[0].Endorsements
-				for (endorsement of endorsements)
+				if (endorsement.id == req.body.userID)
 				{
-					if (endorsement.id == req.body.userID)
-					{
-						res.send(endorsement);
-						console.log("ENDORESEMENT GETTER SUCCESSFULL. SENT:");
-						console.dir(endorsement);
-						return
-					}
+					res.send(endorsement);
+					console.log("ENDORSEMENT GETTER SUCCESSFULL. SENT:");
+					console.dir(endorsement);
+					return;
 				}
 			}
-			else { console.log("Endorsements cannot be get...") }
-		})
-		.catch(err => console.error(err))
+		}
+		else { console.error("ERROR: Endorsements cannot be get...") }
+	}
+	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 })
 app.put('/endorse', cors(corsOptionsDelegate), function(req, res, next) // endorses user 
 {
