@@ -111,7 +111,7 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 				console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
 				console.dir(docs); 
 			}
-			else { console.error("ERROR: chatter requested to leave the chatroom, but wasn't in it..."); }
+			else { console.error("ERROR: Chatter requested to leave the chatroom, but wasn't in it..."); }
 		}
 	} 
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
@@ -162,31 +162,31 @@ app.put('/endorse', cors(corsOptionsDelegate), function(req, res, next) // endor
 {
 	console.log("ENDORSE REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
-	endorser(req.body.userID, true)
+	endorser(req.body.userID, true);
 })
-app.put('/delete', cors(corsOptionsDelegate), function(req, res, next) // if the user is deleting (a) message(s) in their chatroom
+app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if the user is deleting (a) message(s) in their chatroom
 {
-	console.log("DELETE REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	let query = { "chatRoomID": req.body.chatRoomID };
-	let update = { $set: { messages: req.body.messages } };
-	let options = { new: true };
-	ChatRoomModel.findOneAndUpdate(query, update, options)
-		.then(doc => 
-	  	{
-	  		if (docCheck(doc))
-	  		{
-	  			res.send(doc);
-	  			console.log("DELETE REQUEST SUCCESSFULL, SENT:");
-				console.dir(doc);
-	  		}
-	  		else
-	  		{
-	  			console.log("Error: nothing returned when updating chatroom:");
-	  			console.dir(doc);
-	  		}
-	 	})
-	  	.catch(err => console.error(err))
+	try 
+	{
+		console.log("DELETE REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		let query = { "chatRoomID": req.body.chatRoomID };
+		let update = { $set: { messages: req.body.messages } };
+		let options = { new: true };
+		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+		if (docCheck(doc))
+		{
+			res.send(doc);
+			console.log("DELETE REQUEST SUCCESSFULL, SENT:");
+			console.dir(doc);
+		}
+		else
+		{
+			console.error("ERROR: Nothing returned when updating chatroom:");
+			console.dir(doc);
+		}
+	} 
+	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 })
 app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the user is sending a message
 {
