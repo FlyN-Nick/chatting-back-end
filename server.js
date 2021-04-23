@@ -139,7 +139,7 @@ app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next
 	{
 		console.log("GET ENDORSE REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
-		let docs = await EndorsementModel.find({ id: "0" })
+		let docs = await EndorsementModel.find({ id: '0' })
 		if (docsCheck(docs))
 		{
 			let endorsements = docs[0].Endorsements
@@ -224,194 +224,59 @@ app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the 
 	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 })
 
-// starting the backend, just makes an ChatroomIDTrackerModel if there isn't one already, same with EndorsementModel, and same with UserIDTrackerModel
-// the only scenario where these models don't exist is if the backend is being run for the first time
-// the only possibilities should be all of the models exist, or none of them do
-// but I still handle cases where say, only one of them exists, just to be careful
-// but this results in a lot of reduntant code in nested if statements
-// EDIT: I HAVE DECIDED TO COMMENT ALL MY USERIDTRACKERMODEL CODE FOR I DECIDED THAT IT DID NOT IMPROVE MY CODE, LOOK AT IDCONVERTER FUNCTION FOR MORE DETAILS
-let portNum = process.env.PORT || 42069; // process.env.PORT is a heroku config var, if the back end is being run locally and therefore can't access this var, it'll instead use 42069
+/* 
+ * starting the backend, just makes an ChatroomIDTrackerModel if there isn't one already, same with EndorsementModel 
+ * the only scenario where these models don't exist is if the backend is being run for the first time
+ * the only possibilities should be all of the models exist, or none of them do
+ * but I still handle cases where say, only one of them exists, just to be careful
+*/
+let portNum = process.env.PORT || 1618; // process.env.PORT is a heroku config var, if the back end is being run locally and therefore can't access this var, it'll instead use 1618
 app.listen(portNum, function()
 {
-	console.log("SERVER INITIATED on port number " + portNum);
-	ChatroomIDTrackerModel
-		.find({ id: '0' })
-		.then(docs => 
-		{ 
-			if (docsCheck(docs))
-			{
-				console.log("There was already an ChatroomIDTrackerModel:"); 
-				console.dir(docs);
-				EndorsementModel
-					.find({ id: '0'})
-					.then(docs => 
-					{
-						if (docsCheck(docs))
-						{
-							console.log("There was already an EndorsementModel:");
-							console.dir(docs);
-							/*UserIDTrackerModel
-								.find({ id: '0' })
-								.then(docs =>
-								{
-									if (docsCheck(docs))
-									{
-										console.log("There was already an UserIDTrackerModel:");
-										console.dir(docs):
-									}
-									else
-									{
-										let model = new UserIDTrackerModel({
-											id: '0',
-											userIDPairs: []
-										})
-										model.save()
-											.then(doc =>
-											{
-												console.log("New UserIDTrackerModel:");
-												console.dir(doc);
-											})
-											.catch(err => console.error(err))
-									}
-								})
-								.catch(err => console.error(err))*/
-						}
-						else
-						{
-							let model = new EndorsementModel({
-								IDs: [],
-								Endorsements: [],
-								id: '0'
-							});
-							model.save()
-								.then(doc =>
-								{
-									console.log("New EndorsementModel:");
-									console.dir(doc);
-									/*UserIDTrackerModel
-										.find({ id: '0' })
-										.then(docs =>
-										{
-											if (docsCheck(docs))
-											{
-												console.log("There was already an UserIDTrackerModel:");
-												console.dir(docs):
-											}
-											else
-											{
-												let model = new UserIDTrackerModel({
-													id: '0',
-													userIDPairs: []
-												})
-												model.save()
-													.then(doc =>
-													{
-														console.log("New UserIDTrackerModel:");
-														console.dir(doc);
-													})
-													.catch(err => console.error(err))
-											}
-										})
-										.catch(err => console.error(err))*/
-								})
-								.catch(err => console.error(err))
-						}
+	try 
+	{
+		console.log("SERVER INITIATED on port number " + portNum);
+		let docs = await ChatroomIDTrackerModel.find({ id: '0' });
 
-					})
-					.catch(err => console.error(err))
-			}
-			else
-			{
-				let tracker = new ChatroomIDTrackerModel({
-					id: '0',
-					chatRoomIDs: []
-				});
-				tracker.save()
-					.then(doc =>
-					{	
-						console.log("New ChatroomIDTracker:");
-						console.dir(doc);
-						EndorsementModel
-							.find({ id: '0'})
-							.then(docs => 
-							{
-								if (docsCheck(docs)) 
-								{ 
-									console.log("There was already an EndorsementModel"); 
-									/*UserIDTrackerModel
-										.find({ id: '0' })
-										.then(docs =>
-										{
-											if (docsCheck(docs))
-											{
-												console.log("There was already an UserIDTrackerModel:");
-												console.dir(docs):
-											}
-											else
-											{
-												let model = new UserIDTrackerModel({
-													id: '0',
-													userIDPairs: []
-												})
-												model.save()
-													.then(doc =>
-													{
-														console.log("New UserIDTrackerModel:");
-														console.dir(doc);
-													})
-													.catch(err => console.error(err))
-											}
-										})
-										.catch(err => console.error(err))*/
-								}
-								else
-								{
-									let model = new EndorsementModel({
-										IDs: [],
-										Endorsements: [],
-										id: '0'
-									});
-									model.save()
-										.then(doc =>
-										{
-											console.log("New EndorsementModel:");
-											console.dir(doc);
-											/*UserIDTrackerModel
-												.find({ id: '0' })
-												.then(docs =>
-												{
-													if (docsCheck(docs))
-													{
-														console.log("There was already an UserIDTrackerModel:");
-														console.dir(docs);
-													}
-													else
-													{
-														let model = new UserIDTrackerModel({
-															id: '0',
-															userIDPairs: []
-														})
-														model.save()
-															.then(doc =>
-															{
-																console.log("New UserIDTrackerModel:");
-																console.dir(doc);
-															})
-															.catch(err => console.error(err))
-													}
-												})
-												.catch(err => console.error(err))*/
-										})
-										.catch(err => console.error(err))
-								}
+		if (docsCheck(docs))
+		{
+			console.log("There was already an ChatroomIDTrackerModel:"); 
+			console.dir(docs);
+		}
+		else
+		{
+			let tracker = new ChatroomIDTrackerModel({
+				id: '0',
+				chatRoomIDs: []
+			});
+			let doc = await tracker.save();
+			console.log("New ChatroomIDTracker:");
+			console.dir(doc);
+		}
 
-							})
-							.catch(err => console.error(err))
-					})
-					.catch(err => console.error(err))
-			}
-		})
-		.catch(err => console.error(err))
+		let docs = await EndorsementModel.find({ id: '0' });
+		if (docsCheck(docs))
+		{
+			console.log("There was already an EndorsementModel:");
+			console.dir(docs);
+		}
+		else
+		{
+			let model = new EndorsementModel({
+				IDs: [],
+				Endorsements: [],
+				id: '0'
+			});
+			model.save()
+				.then(doc =>
+				{
+					console.log("New EndorsementModel:");
+					console.dir(doc);
+				})
+				.catch(err => console.error(err))
+		}
+	}
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 })
 function makeNewChatRoom(userID) // makes a new chatroom
 {
@@ -420,7 +285,7 @@ function makeNewChatRoom(userID) // makes a new chatroom
   	let characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   	let random_id = '';
   	let options = { new: true };
-  	let query = { id: "0"};
+  	let query = { id: '0' };
   	ChatroomIDTrackerModel 
   			.find({ id: '0' }).lean()
   			.then(doc =>
@@ -548,7 +413,7 @@ function endorser(userID, endorse)
 							id: userID
 						});
 						Endorsements[Endorsements.indexOf(endorsement)] = newEndorsement;
-						let query = { id: "0" };
+						let query = { id: '0' };
 						let update = { $set: { Endorsements: Endorsements } };
 						console.log("Updating endorsements:");
 						console.dir(update);
@@ -572,7 +437,7 @@ function endorser(userID, endorse)
 					id: userID
 				});
 				Endorsements.push(newEndorsement);
-				let query = { id: "0" };
+				let query = { id: '0' };
 				let update = { $set: { Endorsements: Endorsements } };
 				console.log("Updating endorsements:");
 				console.dir(update);
