@@ -278,59 +278,57 @@ app.listen(portNum, function()
 	}
 	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 })
-function makeNewChatRoom(userID) // makes a new chatroom
+
+/**
+ * Makes a new chatroom.
+ * 
+ * @param {string} userID The id of the user making the new chatroom.
+ * @returns {chatRoomSchema} The new chatroom.
+ */
+async function makeNewChatRoom(userID) // makes a new chatroom
 {
-	// generating a unique id for the chatroom
-	let idLength = 8;
-  	let characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  	let random_id = '';
-  	let options = { new: true };
-  	let query = { id: '0' };
-  	ChatroomIDTrackerModel 
-  			.find({ id: '0' }).lean()
-  			.then(doc =>
-  			{
-  				let ids = doc[0].chatRoomIDs;
-  				console.log("Current chatroom ids:");
-  				console.dir(ids);
-  				while (true)
-				{
-					random_id = '';
-			  		for (let i = 0; i < idLength; i++ ) 
-			  		{
-			    		random_id += characters.charAt(Math.floor(Math.random() * characters.length));
-			  		}
-	  				if ((!ids.includes(random_id))/* || ids.length == 0 || ids.length == null || ids == null*/) // checks if the chatroom id is unique
-	  				{
-	  					break;
-	  				}
-			  	}
-			  	ids.push(random_id);
-			  	console.log("New chatroom ids:");
-			  	console.dir(ids);
-			    let update = { $set: { chatRoomIDs: ids } };
-			    ChatroomIDTrackerModel.findOneAndUpdate(query, update, options).lean()
-			    	.then(doc => 
-			    	{ 
-			    		console.log("RANDOM ID FOR CHATROOM GENERATED.");
-						let newChatRoom = new ChatRoomModel({
-							chatRoomID: random_id,
-							messages: [],
-							userOneID: userID,
-							userTwoID: ''
-						});
-						newChatRoom.save()
-						   .then(doc => 
-						   {
-						   		console.log("NEW CHATROOM MADE, FOR NO OPEN CHATROOMS. SENT:");
-								console.dir(doc);
-						   	 	return doc;
-						   })
-						   .catch(err => console.error(err))
-			    	})
-				    .catch(err => console.error(err))
-  			})
-  			.catch(err => console.error(err))
+	try 
+	{
+		// generating a unique id for the chatroom
+		let idLength = 8;
+		let characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+		let random_id = '';
+		let options = { new: true };
+		let query = { id: '0' };
+		let doc = await ChatroomIDTrackerModel.find({ id: '0' }).lean();
+		let ids = doc[0].chatRoomIDs;
+		console.log("Current chatroom ids:");
+		console.dir(ids);
+		while (true)
+		{
+			random_id = '';
+			for (let i = 0; i < idLength; i++ ) 
+			{
+				random_id += characters.charAt(Math.floor(Math.random() * characters.length));
+			}
+			if ((!ids.includes(random_id))/* || ids.length == 0 || ids.length == null || ids == null*/) // checks if the chatroom id is unique
+			{
+				break;
+			}
+		}
+		ids.push(random_id);
+		console.log("New chatroom ids:");
+		console.dir(ids);
+		let update = { $set: { chatRoomIDs: ids } };
+		let doc = await ChatroomIDTrackerModel.findOneAndUpdate(query, update, options).lean();
+		console.log("RANDOM ID FOR CHATROOM GENERATED.");
+		let newChatRoom = new ChatRoomModel({
+			chatRoomID: random_id,
+			messages: [],
+			userOneID: userID,
+			userTwoID: ''
+		});
+		let doc = await newChatRoom.save();
+		console.log("NEW CHATROOM MADE, FOR NO OPEN CHATROOMS. SENT:");
+		console.dir(doc);
+		return doc;
+	}
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 }
 function findOpenChatRoom(userID) // finds a chatroom with an empty slot for the user or just makes a new one if not possible
 {
@@ -367,7 +365,7 @@ function findOpenChatRoom(userID) // finds a chatroom with an empty slot for the
 			      		{ 
 			      			console.log("NO CHATROOM WITH USER TWO SLOT AVAILABLE:");
 			      			console.dir(doc);
-			      			return makeNewChatRoom(userID); // no chatrooms with empty slots exists, so a new one is made
+			      			return await makeNewChatRoom(userID); // no chatrooms with empty slots exists, so a new one is made
 			      		}
 			    	})
 			    	.catch(err => console.error(err))

@@ -1,4 +1,4 @@
-let mongoose =require('mongoose');
+let mongoose = require('mongoose');
 let validator = require('validator');
 
 let userIDSchema = new mongoose.Schema ({ // schema for each user id pair
