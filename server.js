@@ -8,8 +8,7 @@ let ChatroomIDTrackerModel = require('./schema/chatroomIDTracker'); // schema fo
 let EndorsementModel = require('./schema/endorsement'); // schema for tracking the endorsement level of users
 let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
 let MessageModel = require('./schema/message');	 // schema for each individual message
-//let UserIDModel = require('./schema/userID'); // schema for each individual firebase id display id pair
-//let UserIDTrackerModel = require('./schema/userIDTracker') // schema for tracking all id pairs
+
 console.log('May node be with you!') // *so* funny
 app.use(express.json());
 //app.use('*', cors());
@@ -21,40 +20,49 @@ var corsOptionsDelegate = function(req, callback)  // if the website is my front
   if (whitelist.indexOf(req.header('Origin')) !== -1) { corsOptions = { origin: true } } 
   else { corsOptions = { origin: false } }
   callback(null, corsOptions);
-}
+};
+
 // all of these options requests are for cors preflight, and I use cors(corsOptionsDelegate) to only allow my frontend
 app.options('/find', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.options('/leave', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.options('/get', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.options('/getEndorsementLevel', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.options('/endorse', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.options('/delete', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.options('/send', cors(corsOptionsDelegate), function(req, res, next)
 {
 	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
-})
+});
+
 app.get('/', function(req, res, next)
 {
 	res.json({msg: 'Welcome to the backend :)'})
-})
+});
+
 app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the user is finding a chatroom
 {
 	try 
@@ -84,7 +92,8 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 		}
 	}
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
-})
+});
+
 app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the user is leaving their chatroom
 {
 	try 
@@ -124,7 +133,8 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 		}
 	} 
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
-})
+});
+
 app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the user is getting the chatroom (checking for new messages)
 {
 	try 
@@ -143,7 +153,8 @@ app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the us
 		else { console.error("ERROR: Chatter's chatroom could not be get..."); }
 	}
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
-})
+});
+
 app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next) => // if the user is getting their endorsement level 
 {
 	try 
@@ -170,13 +181,19 @@ app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next
 		else { console.error("ERROR: Endorsements cannot be get...") }
 	}
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
-})
+});
+
 app.put('/endorse', cors(corsOptionsDelegate), async (req, res, next) => // endorses user 
 {
-	console.log("ENDORSE REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	endorser(req.body.userID, true);
-})
+	try 
+	{
+		console.log("ENDORSE REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		await endorser(req.body.userID, true);
+	}
+	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+});
+
 app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if the user is deleting (a) message(s) in their chatroom
 {
 	try 
@@ -202,7 +219,8 @@ app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if th
 		}
 	} 
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
-})
+});
+
 app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the user is sending a message
 {
 	try
@@ -359,6 +377,7 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 	}
 	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 }
+
 /**
  * Finds a chatroom with an empty slot for the user or just makes a new one if not possible.
  * 
@@ -367,42 +386,61 @@ async function makeNewChatRoom(userID) // makes a new chatroom
  */
 async function findOpenChatRoom(userID) // finds a chatroom with an empty slot for the user or just makes a new one if not possible
 {
-	endorser(userID, false);
-	let query = { userOneID: "" };
-	let update = { $set: { userOneID: userID } };
-	let options = { new: true };
-
-	let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
-
-	if (docCheck(doc)) // a chatroom with the user one slot empty
+	try
 	{
-		console.log("OPEN CHATROOM FOUND WITH USER ONE SLOT AVAILABLE. SENT:");
-		console.dir(doc);
-		return doc;
-	}
-	else
-	{
-		console.log("NO CHATROOM WITH USER ONE SLOT AVAILABLE:")
-		console.dir(doc);
-		let query = { userTwoID: ""};
-		let update = { $set: { userTwoID: userID } };
+		await endorser(userID, false);
 
+		let query = { userOneID: "" };
+		let update = { $set: { userOneID: userID } };
+		let options = { new: true };
+	
 		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
-
-		if (docCheck(doc)) // a chatroom with the user two slot empty
+	
+		if (docCheck(doc)) // a chatroom with the user one slot empty
 		{
-			console.log("OPEN CHATROOM FOUND WITH USER TWO SLOT AVAILABLE. SENT:");
+			console.log("OPEN CHATROOM FOUND WITH USER ONE SLOT AVAILABLE. SENT:");
 			console.dir(doc);
 			return doc;
 		}
-		else 
-		{ 
-			console.log("NO CHATROOM WITH USER TWO SLOT AVAILABLE:");
+		else
+		{
+			console.log("NO CHATROOM WITH USER ONE SLOT AVAILABLE:")
 			console.dir(doc);
-			return await makeNewChatRoom(userID); // no chatrooms with empty slots exists, so a new one is made
+			let query = { userTwoID: ""};
+			let update = { $set: { userTwoID: userID } };
+	
+			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+	
+			if (docCheck(doc)) // a chatroom with the user two slot empty
+			{
+				console.log("OPEN CHATROOM FOUND WITH USER TWO SLOT AVAILABLE. SENT:");
+				console.dir(doc);
+				return doc;
+			}
+			else 
+			{ 
+				console.log("NO CHATROOM WITH USER TWO SLOT AVAILABLE:");
+				console.dir(doc);
+				return await makeNewChatRoom(userID); // no chatrooms with empty slots exists, so a new one is made
+			}
 		}
 	}
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 }
+
+/**
+ * Checks if what mongoose returned a legitimate document.
+ * 
+ * @param {Document} doc The document you are checking.
+ * @returns {boolean} The validity of the document.
+ */
+ function docCheck(doc)
+ {
+	 if ((doc == null) || (doc == undefined)|| (doc._id == null)) { return false }
+	 else if (doc) { return true }
+	 else { return false }
+ }
+
 /**
  * Checks if mongoose returned a legitimate array of documents or not.
  * Same thing as docCheck, but for when mongoose returns an array (typically of length 1) of docs.
@@ -415,154 +453,72 @@ function docsCheck(docs)
 	if ((docs == null) || (docs == undefined)) { return false }
 	else { return (docs.length > 0) }
 }
+
 /**
- * Checks if what mongoose returned a legitimate document.
+ * Two functions combined into one.
+ * If endorse is false:
+ * - Makes sure that the user is being tracked by the endorsement tracker, and adds them to the tracker if not.
+ * If endorse is true:
+ * - Makes sure that the user is being tracked by the endorsement tracker, add them if not, and increases their endorsement level by one.
  * 
- * @param {Document} doc The document you are checking.
- * @returns {boolean} The validity of the document.
+ * @param {string} userID 
+ * @param {boolean} endorse The function mode.
  */
-function docCheck(doc)
+async function endorser(userID, endorse) 
 {
-	if ((doc == null) || (doc == undefined)|| (doc._id == null)) { return false }
-	else if (doc) { return true }
-	else { return false }
-}
-/*	This function does two things, depending on the boolean "endorse".
- *	If false, it will make sure that a user is being tracked by the endorsement tracker.
- *	^ if they aren't being tracked, they will be added.
- *	If true, it will also make sure if they are being tracked
- *	and will increase their endorsement level by one.
- */ 
-function endorser(userID, endorse) 
-{
-	EndorsementModel
-		.find({ id: '0' }).lean()
-		.then(docs =>
+	try 
+	{
+		let docs = await EndorsementModel.find({ id: '0' }).lean()
+
+		let endorsements = docs[0].Endorsements;
+		let beingTracked = false;
+		for (endorsement of endorsements)
 		{
-			let Endorsements = docs[0].Endorsements;
-			let beingTracked = false;
-			for (endorsement of Endorsements)
+			if (endorsement.id == userID)
 			{
-				if (endorsement.id == userID)
+				beingTracked = true;
+				if (endorse) 
 				{
-					beingTracked = true;
-					if (endorse) 
-					{
-						let newLevel = (endorsement.level + 1);
-						let newEndorsement = new EndorsementUserModel({
-							level: newLevel,
-							id: userID
-						});
-						Endorsements[Endorsements.indexOf(endorsement)] = newEndorsement;
-						let query = { id: '0' };
-						let update = { $set: { Endorsements: Endorsements } };
-						console.log("Updating endorsements:");
-						console.dir(update);
-						let options = { new: true };
-						EndorsementModel.findOneAndUpdate(query, update, options)
-							.then(doc => 
-							{ 
-								console.log("User successfully endorsed.") ;
-								console.dir(doc);
-							})
-							.catch(err => console.error(err))
-					}
-				}
-			}
-			if (!beingTracked)
-			{
-				let level = 0;
-				if (endorse) { level = 1 }
-				let newEndorsement = new EndorsementUserModel({
-					level: level,
-					id: userID
-				});
-				Endorsements.push(newEndorsement);
-				let query = { id: '0' };
-				let update = { $set: { Endorsements: Endorsements } };
-				console.log("Updating endorsements:");
-				console.dir(update);
-				let options = { new: true };
-				EndorsementModel.findOneAndUpdate(query, update, options)
-					.then(doc => 
-					{ 
-						console.log("New user added to endorsement tracker.");
-						console.dir(doc);
-					})
-					.catch(err => console.error(err))
-			}
-		})
-		.catch(err => console.error(err))
-}
-// I have decided that using the UserIDTrackerModel would be useless and just create a lot of needless work
-// esentially, what I was planning to do, was for the user to fetch from the server with their firebaseID
-// but in actual mongoDB, everything would be stored with their displayID
-// so I made a converter function that would convert from the firebaseID to their displayID
-// the whole reasoning for this was that, the displayIDs are easy to guess
-// they are short and only contain numbers, and use a bad pseudorandom number generator to generate
-// so someone could try to use someone else's account by just guessing an id
-// or if they were chatting with someone, they would be able to see their id
-// and then could try to use their account
-// whereas, the firebaseid is very unique
-// very hard to guess
-// and the user can only get access to it by logging in
-// if you have looked at the front end code, you log in to firebase with your display id and password
-// and that's the thing
-// even if someone knows your display id
-// they still need to know your password to fetch from the sever
-// (this is because of how I structured the front end code: it won't start fetching with the display id until the user has logged into firebase with that id)
-// and, I have only authorized my front end website to fetch from the backend, so they would not be able to write code that overrided that check
-// so regardless of whether the firebase id or the display id would be used to fetch from the server
-// you still need to log in
-// I still learned a lot while writing the code for this though.
-
-// Also, the reason why implementing this function would be so much work
-// is that, it's not as simple as just putting this function around every reference to a user id when they are fetching
-// because since this has to be async (because of the mongodb .then promise)
-// I had to use a callback function as a parameter
-
-// Also, yes I know that multi line comments are a thing, but I typically use them only when I am commenting out code 
-
-// description of function: converts firebaseID to displayID
-// if the user signed up for the first time
-// the displayID parameter is provided, and the user id pair is added to the UserIDTrackerModel
-// the function provides a callback function with the displayID as its parameter
-/*function idConverter(firebaseID, displayID, callback)
-{
-	UserIDTrackerModel
-		.find({ id: '0' }).lean()
-		.then(docs =>
-		{
-			let userIDPairs = docs[0].userIDPairs;
-			if (displayID)
-			{
-				let userIDPair = new UserIDModel({
-					firebaseID: firebaseID,
-					displayID: displayID
-				});
-				userIDPairs.push(userIDPair)
-				let query = { id: '0' };
-				let update = { $set: { userIDPairs: userIDPairs }}
-				let options = { new: true };
-				UserIDTrackerModel.findOneAndUpdate(query, update, options)
-					.then(doc =>
-					{
-						console.log("User successfully added to user id pair tracker.");
-						console.dir(doc);
-						callback(displayID);
-					})
-					.catch(err => console.error(err))
-			}
-			else
-			{
-				for (userIDPair of userIDPairs)
-				{
-					if (UserIDPair.firebaseID === firebaseID)
-					{
-						callback(UserIDPair.displayID);
-					}
+					let newLevel = (endorsement.level + 1);
+					let newEndorsement = new EndorsementUserModel({
+						level: newLevel,
+						id: userID
+					});
+					endorsements[endorsements.indexOf(endorsement)] = newEndorsement;
+	
+					let query = { id: '0' };
+					let update = { $set: { Endorsements: endorsements } };
+					console.log("Updating endorsements:");
+					console.dir(update);
+					let options = { new: true };
+	
+					let doc = await EndorsementModel.findOneAndUpdate(query, update, options);
+	
+					console.log("User successfully endorsed.") ;
+					console.dir(doc);
 				}
 			}
 		}
-		.catch(console.error(err))
-}*/
+		if (!beingTracked)
+		{
+			let level = endorse ? 1 : 0; 
+			let newEndorsement = new EndorsementUserModel({
+				level: level,
+				id: userID
+			});
+			endorsements.push(newEndorsement);
+	
+			let query = { id: '0' };
+			let update = { $set: { Endorsements: endorsements } };
+			console.log("Updating endorsements:");
+			console.dir(update);
+			let options = { new: true };
+	
+			let doc = await EndorsementModel.findOneAndUpdate(query, update, options);
+	
+			console.log("New user added to endorsement tracker.");
+			console.dir(doc);
+		}
+	}
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
+}
