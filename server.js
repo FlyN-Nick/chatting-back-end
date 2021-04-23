@@ -61,7 +61,9 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 	{
 		console.log("FIND REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
+
 		let docs = await ChatRoomModel.find({ userOneID: req.body.find });
+
 		if (docsCheck(docs)) // user was already in a chatroom and was in the userOneID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
 		{
 			res.send(docs);
@@ -71,13 +73,14 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 		else
 		{
 			let docs = await ChatRoomModel.find({ userTwoID: req.body.find });
+
 			if (docsCheck(docs)) // user was already in a chatroom and was in the userTwoID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
 			{
 				res.send(docs);
 				console.log("OLD CHATROOM FOUND. SENT:");
 				console.dir(docs);
 			}
-			else { res.send(findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
+			else { res.send(await findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
 		}
 	}
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
@@ -88,13 +91,17 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 	{
 		console.log("LEAVE REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
+
 		let docs = await ChatRoomModel.find({ chatRoomID: req.body.chatRoomID });
+
 		if (docs[0].userOneID == req.body.remove)
 		{
 			let query = { chatRoomID: req.body.chatRoomID };
 			let update = { $set: { userOneID: "" } };
 			let options = { new: true };
+
 			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+
 			res.send(docs);
 			console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
 			console.dir(docs);
@@ -104,7 +111,9 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 			let query = { chatRoomID: req.body.chatRoomID };
 			let update = { $set: { userTwoID: "" } };
 			let options = { new: true };
+
 			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			
 			if (docCheck(docs))
 			{
 				res.send(docs);
@@ -122,7 +131,9 @@ app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the us
 	{
 		console.log("GET REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
+
 		let docs = await ChatRoomModel.find({ chatRoomID: req.body.chatRoomID });
+
 		if (docsCheck(docs))
 		{
 			res.send(docs);
@@ -139,7 +150,9 @@ app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next
 	{
 		console.log("GET ENDORSE REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
+
 		let docs = await EndorsementModel.find({ id: '0' })
+
 		if (docsCheck(docs))
 		{
 			let endorsements = docs[0].Endorsements
@@ -158,7 +171,7 @@ app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next
 	}
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 })
-app.put('/endorse', cors(corsOptionsDelegate), function(req, res, next) // endorses user 
+app.put('/endorse', cors(corsOptionsDelegate), async (req, res, next) => // endorses user 
 {
 	console.log("ENDORSE REQUEST OCCURED, RECEIVED:");
 	console.dir(req.body);
@@ -173,7 +186,9 @@ app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if th
 		let query = { "chatRoomID": req.body.chatRoomID };
 		let update = { $set: { messages: req.body.messages } };
 		let options = { new: true };
+
 		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+
 		if (docCheck(doc))
 		{
 			res.send(doc);
@@ -194,7 +209,9 @@ app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the 
 	{
 		console.log("SEND REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
+
 		let docs = await ChatRoomModel.find({ chatrooMID: req.body.chatRoomID });
+
 		if (docsCheck(docs))
 		{
 			let messages = docs[0].messages;
@@ -206,7 +223,9 @@ app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the 
 			let query = { "chatRoomID": req.body.chatRoomID };
 			let update = { $set: { messages: messages } };
 			let options = { new: true };
+
 			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			
 			if (docCheck(doc))
 			{
 				res.send(doc);
@@ -236,6 +255,7 @@ app.listen(portNum, function()
 	try 
 	{
 		console.log("SERVER INITIATED on port number " + portNum);
+
 		let docs = await ChatroomIDTrackerModel.find({ id: '0' });
 
 		if (docsCheck(docs))
@@ -249,12 +269,15 @@ app.listen(portNum, function()
 				id: '0',
 				chatRoomIDs: []
 			});
+
 			let doc = await tracker.save();
+
 			console.log("New ChatroomIDTracker:");
 			console.dir(doc);
 		}
 
 		let docs = await EndorsementModel.find({ id: '0' });
+		
 		if (docsCheck(docs))
 		{
 			console.log("There was already an EndorsementModel:");
@@ -283,7 +306,7 @@ app.listen(portNum, function()
  * Makes a new chatroom.
  * 
  * @param {string} userID The id of the user making the new chatroom.
- * @returns {chatRoomSchema} The new chatroom.
+ * @returns {Document} The new chatroom.
  */
 async function makeNewChatRoom(userID) // makes a new chatroom
 {
@@ -295,7 +318,9 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 		let random_id = '';
 		let options = { new: true };
 		let query = { id: '0' };
+
 		let doc = await ChatroomIDTrackerModel.find({ id: '0' }).lean();
+
 		let ids = doc[0].chatRoomIDs;
 		console.log("Current chatroom ids:");
 		console.dir(ids);
@@ -315,7 +340,9 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 		console.log("New chatroom ids:");
 		console.dir(ids);
 		let update = { $set: { chatRoomIDs: ids } };
+
 		let doc = await ChatroomIDTrackerModel.findOneAndUpdate(query, update, options).lean();
+
 		console.log("RANDOM ID FOR CHATROOM GENERATED.");
 		let newChatRoom = new ChatRoomModel({
 			chatRoomID: random_id,
@@ -323,55 +350,58 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 			userOneID: userID,
 			userTwoID: ''
 		});
+
 		let doc = await newChatRoom.save();
+
 		console.log("NEW CHATROOM MADE, FOR NO OPEN CHATROOMS. SENT:");
 		console.dir(doc);
 		return doc;
 	}
 	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 }
-function findOpenChatRoom(userID) // finds a chatroom with an empty slot for the user or just makes a new one if not possible
+/**
+ * Finds a chatroom with an empty slot for the user or just makes a new one if not possible.
+ * 
+ * @param {string} userID The id of the user finding an open chatroom.
+ * @returns {Document} The chatroom found (or created).
+ */
+async function findOpenChatRoom(userID) // finds a chatroom with an empty slot for the user or just makes a new one if not possible
 {
 	endorser(userID, false);
 	let query = { userOneID: "" };
 	let update = { $set: { userOneID: userID } };
 	let options = { new: true };
 
-	ChatRoomModel.findOneAndUpdate(query, update, options)
-	    .then(doc => 
+	let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+
+	if (docCheck(doc)) // a chatroom with the user one slot empty
+	{
+		console.log("OPEN CHATROOM FOUND WITH USER ONE SLOT AVAILABLE. SENT:");
+		console.dir(doc);
+		return doc;
+	}
+	else
+	{
+		console.log("NO CHATROOM WITH USER ONE SLOT AVAILABLE:")
+		console.dir(doc);
+		let query = { userTwoID: ""};
+		let update = { $set: { userTwoID: userID } };
+
+		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+
+		if (docCheck(doc)) // a chatroom with the user two slot empty
 		{
-		  	if (docCheck(doc)) // a chatroom with the user one slot empty
-		  	{
-		  		console.log("OPEN CHATROOM FOUND WITH USER ONE SLOT AVAILABLE. SENT:");
-		  		console.dir(doc);
-		  		return doc;
-		  	}
-		  	else
-		  	{
-		  		console.log("NO CHATROOM WITH USER ONE SLOT AVAILABLE:")
-		  		console.dir(doc);
-		  		let query = { userTwoID: ""};
-			    let update = { $set: { userTwoID: userID } };
-			    ChatRoomModel.findOneAndUpdate(query, update, options)
-			    	.then(doc => 
-			      	{
-			      		if (docCheck(doc)) // a chatroom with the user two slot empty
-			      		{
-			      			console.log("OPEN CHATROOM FOUND WITH USER TWO SLOT AVAILABLE. SENT:");
-			  				console.dir(doc);
-		      				return doc;
-			      		}
-			      		else 
-			      		{ 
-			      			console.log("NO CHATROOM WITH USER TWO SLOT AVAILABLE:");
-			      			console.dir(doc);
-			      			return await makeNewChatRoom(userID); // no chatrooms with empty slots exists, so a new one is made
-			      		}
-			    	})
-			    	.catch(err => console.error(err))
-		  	}
-		})
-		.catch(err => console.error(err))
+			console.log("OPEN CHATROOM FOUND WITH USER TWO SLOT AVAILABLE. SENT:");
+			console.dir(doc);
+			return doc;
+		}
+		else 
+		{ 
+			console.log("NO CHATROOM WITH USER TWO SLOT AVAILABLE:");
+			console.dir(doc);
+			return await makeNewChatRoom(userID); // no chatrooms with empty slots exists, so a new one is made
+		}
+	}
 }
 function docsCheck(docs) // same thing as below, except for the cases where mongoose returns an array (typically of length 1) of docs
 {
