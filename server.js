@@ -190,43 +190,38 @@ app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if th
 })
 app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the user is sending a message
 {
-	console.log("SEND REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	ChatRoomModel
-		.find({ chatRoomID: req.body.chatRoomID})
-		.then(docs => 
+	try
+	{
+		console.log("SEND REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		let docs = await ChatRoomModel.find({ chatrooMID: req.body.chatRoomID });
+		if (docsCheck(docs))
 		{
-			if (docsCheck(docs))
+			let messages = docs[0].messages;
+			let newMessage = new MessageModel({
+				message: req.body.message,
+				sender: req.body.sender
+			});
+			messages.push(newMessage);
+			let query = { "chatRoomID": req.body.chatRoomID };
+			let update = { $set: { messages: messages } };
+			let options = { new: true };
+			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			if (docCheck(doc))
 			{
-				let messages = docs[0].messages
-				let newMessage = new MessageModel({
-					message: req.body.message,
-					sender: req.body.sender
-				});
-				messages.push(newMessage)
-				let query = { "chatRoomID": req.body.chatRoomID };
-				let update = { $set: { messages: messages } };
-				let options = { new: true };
-				ChatRoomModel.findOneAndUpdate(query, update, options)
-					.then(doc =>
-					{
-						if (docCheck(doc))
-						{
-							res.send(doc);
-							console.log("SEND REQUEST SUCCESSFULL, SENT:");
-							console.dir(doc);
-						}
-						else
-						{
-							console.log("Error: nothing returned when updating chatroom:");
-							console.dir(doc);
-						}
-					})
-					.catch(err => console.error(err))
+				res.send(doc);
+				console.log("SEND REQUEST SUCCESSFULL, SENT:");
+				console.dir(doc);
 			}
-			else { console.log("User tried to send message in invalid chatroom...") }
-		})
-		.catch(err => console.error(err))
+			else
+			{
+				console.error("ERROR: Nothing returned when updating chatroom:");
+				console.dir(doc);
+			}
+		}
+		else { console.error("ERROR: User tried to send message in invalid chatroom...") }
+	}
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 })
 
 // starting the backend, just makes an ChatroomIDTrackerModel if there isn't one already, same with EndorsementModel, and same with UserIDTrackerModel
