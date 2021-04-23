@@ -80,7 +80,7 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 			else { res.send(findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
 		}
 	}
-	catch(err) { consoler.error(err); }
+	catch(err) { consoler.error(err) }
 })
 app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the user is leaving their chatroom
 {
@@ -111,28 +111,27 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 				console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
 				console.dir(docs); 
 			}
-			else { console.log("Error: chatter requested to leave the chatroom, but wasn't in it..."); }
+			else { console.error("Error: chatter requested to leave the chatroom, but wasn't in it..."); }
 		}
 	} 
-	catch (err) { consoler.error(err); }
+	catch (err) { consoler.error(err) }
 })
-app.put('/get', cors(corsOptionsDelegate), function(req, res, next) // if the user is getting the chatroom (checking for new messages)
+app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the user is getting the chatroom (checking for new messages)
 {
-	console.log("GET REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	ChatRoomModel
-		.find({ chatRoomID: req.body.chatRoomID})
-		.then(docs => 
+	try 
+	{
+		console.log("GET REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		let docs = await ChatRoomModel.find({ chatRoomID: req.body.chatRoomID });
+		if (docsCheck(docs))
 		{
-			if (docsCheck(docs))
-			{
-				res.send(docs);
-				console.log("HTTP GETTER SUCCESSFULL. SENT:");
-				console.dir(docs);
-			}
-			else { console.log("Chatter's chatroom could not be get..."); }
-		})
-		.catch(err => console.error("Error occured: " + err))
+			res.send(docs);
+			console.log("HTTP GETTER SUCCESSFULL. SENT:");
+			console.dir(docs);
+		}
+		else { console.error("Chatter's chatroom could not be get..."); }
+	}
+	catch(err) { console.error(err) }
 })
 app.put('/getEndorsementLevel', cors(corsOptionsDelegate), function(req, res, next) // if the user is getting their endorsement level 
 {
