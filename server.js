@@ -114,7 +114,7 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 
 			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
 			
-			if (docCheck(docs))
+			if (docsCheck(docs)) // ! changed from docCheck
 			{
 				res.send(docs);
 				console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
@@ -277,7 +277,7 @@ app.listen(portNum, function()
 		}
 
 		let docs = await EndorsementModel.find({ id: '0' });
-		
+
 		if (docsCheck(docs))
 		{
 			console.log("There was already an EndorsementModel:");
@@ -403,14 +403,27 @@ async function findOpenChatRoom(userID) // finds a chatroom with an empty slot f
 		}
 	}
 }
-function docsCheck(docs) // same thing as below, except for the cases where mongoose returns an array (typically of length 1) of docs
+/**
+ * Checks if mongoose returned a legitimate array of documents or not.
+ * Same thing as docCheck, but for when mongoose returns an array (typically of length 1) of docs.
+ * 
+ * @param {Document[]} docs The docs you are checking.
+ * @returns {boolean} The validity of the documents.
+ */
+function docsCheck(docs) 
 {
-	if((docs == null) || (docs == undefined)) { return false }
+	if ((docs == null) || (docs == undefined)) { return false }
 	else { return (docs.length > 0) }
 }
-function docCheck(doc) // checks if what mongoose returned is actually a doc or not
+/**
+ * Checks if what mongoose returned a legitimate document.
+ * 
+ * @param {Document} doc The document you are checking.
+ * @returns {boolean} The validity of the document.
+ */
+function docCheck(doc)
 {
-	if((doc == null) || (doc == undefined)|| (doc._id == null)) { return false }
+	if ((doc == null) || (doc == undefined)|| (doc._id == null)) { return false }
 	else if (doc) { return true }
 	else { return false }
 }
