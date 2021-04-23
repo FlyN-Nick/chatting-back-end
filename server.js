@@ -15,12 +15,12 @@ app.use(express.json());
 //app.use('*', cors());
 //app.options('*', cors());
 var whitelist = ['https://chat-n-5b27d.web.app', 'https://chat-n-5b27d.firebaseapp.com', 'https://flynchattin.web.app', 'https://flynchattin.firebaseapp.com'] // websites that are allowed to fetch from the backend (them being my frontend)
-var corsOptionsDelegate = function (req, callback)  // if the website is my frontend, cors is allowed
+var corsOptionsDelegate = function(req, callback)  // if the website is my frontend, cors is allowed
 {
   var corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) { corsOptions = { origin: true } } 
   else { corsOptions = { origin: false } }
-  callback(null, corsOptions) 
+  callback(null, corsOptions);
 }
 // all of these options requests are for cors preflight, and I use cors(corsOptionsDelegate) to only allow my frontend
 app.options('/find', cors(corsOptionsDelegate), function(req, res, next)
@@ -82,48 +82,39 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 	}
 	catch(err) { consoler.error(err); }
 })
-app.put('/leave', cors(corsOptionsDelegate), function(req, res, next) // if the user is leaving their chatroom
+app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the user is leaving their chatroom
 {
-	console.log("LEAVE REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	ChatRoomModel
-		.find({ chatRoomID: req.body.chatRoomID })
-		.then(docs =>
+	try 
+	{
+		console.log("LEAVE REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		let docs = await ChatRoomModel.find({ chatRoomID: req.body.chatRoomID });
+		if (docs[0].userOneID == req.body.remove)
 		{
-			if (docs[0].userOneID == req.body.remove)
+			let query = { chatRoomID: req.body.chatRoomID };
+			let update = { $set: { userOneID: "" } };
+			let options = { new: true };
+			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			res.send(docs);
+			console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
+			console.dir(docs);
+		}
+		else
+		{
+			let query = { chatRoomID: req.body.chatRoomID };
+			let update = { $set: { userTwoID: "" } };
+			let options = { new: true };
+			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			if (docCheck(docs))
 			{
-				let query = { chatRoomID: req.body.chatRoomID };
-				let update = { $set: { userOneID: "" } };
-				let options = { new: true };
-				ChatRoomModel.findOneAndUpdate(query, update, options)
-					.then(docs => 
-				  	{
-				    	res.send(docs);
-				    	console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
-						console.dir(docs);
-				  	})
-				  	.catch(err => console.error(err))
+				res.send(docs);
+				console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
+				console.dir(docs); 
 			}
-			else
-			{
-				let query = { chatRoomID: req.body.chatRoomID };
-				let update = { $set: { userTwoID: "" } };
-				let options = { new: true };
-				ChatRoomModel.findOneAndUpdate(query, update, options)
-					.then(docs => 
-				  	{
-				  		if (docCheck(docs))
-				  		{
-				  			res.send(docs);
-				    		console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
-							console.dir(docs); 
-				  		}
-				  		else { console.log("Error: chatter requested to leave the chatroom, but wasn't in it..."); }
-				  	})
-				  	.catch(err => console.error(err))
-			}
-		})
-		.catch(err => console.error(err))
+			else { console.log("Error: chatter requested to leave the chatroom, but wasn't in it..."); }
+		}
+	} 
+	catch (err) { consoler.error(err); }
 })
 app.put('/get', cors(corsOptionsDelegate), function(req, res, next) // if the user is getting the chatroom (checking for new messages)
 {

@@ -64,4 +64,5 @@ node_modules/
 # dotenv environment variables file
 .env
 
+# To be nice
 .DS_Store
