@@ -55,38 +55,32 @@ app.get('/', function(req, res, next)
 {
 	res.json({msg: 'Welcome to the backend :)'})
 })
-app.put('/find', cors(corsOptionsDelegate), function(req, res, next) // if the user is finding a chatroom
+app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the user is finding a chatroom
 {
-	console.log("FIND REQUEST OCCURED, RECEIVED:");
-	console.dir(req.body);
-	ChatRoomModel
-		.find({ userOneID: req.body.find })
-		.then(docs =>
+	try 
+	{
+		console.log("FIND REQUEST OCCURED, RECEIVED:");
+		console.dir(req.body);
+		let docs = await ChatRoomModel.find({ userOneID: req.body.find });
+		if (docsCheck(docs)) // user was already in a chatroom and was in the userOneID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
 		{
-			if (docsCheck(docs)) // user was already in a chatroom and was in the userOneID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
+			res.send(docs);
+			console.log("OLD CHATROOM FOUND. SENT:");
+			console.dir(docs);
+		}
+		else
+		{
+			let docs = await ChatRoomModel.find({ userTwoID: req.body.find });
+			if (docsCheck(docs)) // user was already in a chatroom and was in the userTwoID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
 			{
 				res.send(docs);
 				console.log("OLD CHATROOM FOUND. SENT:");
-	  			console.dir(docs);
+				console.dir(docs);
 			}
-			else
-			{
-				ChatRoomModel
-					.find({ userTwoID: req.body.find })
-					.then(docs =>
-					{
-						if (docsCheck(docs)) // user was already in a chatroom and was in the userTwoID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
-						{
-							res.send(docs);
-							console.log("OLD CHATROOM FOUND. SENT:");
-	 						console.dir(docs);
-						}
-						else { res.send(findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
-					})
-					.catch(err => console.error(err))
-			}
-		})
-		.catch(err => console.error(err))
+			else { res.send(findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
+		}
+	}
+	catch(err) { consoler.error(err); }
 })
 app.put('/leave', cors(corsOptionsDelegate), function(req, res, next) // if the user is leaving their chatroom
 {
