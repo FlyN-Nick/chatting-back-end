@@ -228,7 +228,7 @@ app.post('/send', cors(corsOptionsDelegate), async (req, res, next) => // if the
 		console.log("SEND REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
 
-		let docs = await ChatRoomModel.find({ chatrooMID: req.body.chatRoomID });
+		let docs = await ChatRoomModel.find({ chatRoomID: req.body.chatRoomID });
 
 		if (docsCheck(docs))
 		{
