@@ -80,7 +80,7 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 		}
 		else
 		{
-			let docs = await ChatRoomModel.find({ userTwoID: req.body.find });
+			docs = await ChatRoomModel.find({ userTwoID: req.body.find });
 
 			if (docsCheck(docs)) // user was already in a chatroom and was in the userTwoID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
 			{
@@ -109,7 +109,7 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 			let update = { $set: { userOneID: "" } };
 			let options = { new: true };
 
-			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
 
 			res.send(docs);
 			console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
@@ -121,7 +121,7 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 			let update = { $set: { userTwoID: "" } };
 			let options = { new: true };
 
-			let docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
 			
 			if (docsCheck(docs)) // ! changed from docCheck
 			{
@@ -221,7 +221,7 @@ app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if th
 	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the user is sending a message
+app.post('/send', cors(corsOptionsDelegate), async (req, res, next) => // if the user is sending a message
 {
 	try
 	{
@@ -268,7 +268,7 @@ app.post('/send', cors(corsOptionsDelegate), function(req, res, next) // if the 
  * but I still handle cases where say, only one of them exists, just to be careful
 */
 let portNum = process.env.PORT || 1618; // process.env.PORT is a heroku config var, if the back end is being run locally and therefore can't access this var, it'll instead use 1618
-app.listen(portNum, function()
+app.listen(portNum, async function()
 {
 	try 
 	{
@@ -294,7 +294,7 @@ app.listen(portNum, function()
 			console.dir(doc);
 		}
 
-		let docs = await EndorsementModel.find({ id: '0' });
+		docs = await EndorsementModel.find({ id: '0' });
 
 		if (docsCheck(docs))
 		{
@@ -359,7 +359,7 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 		console.dir(ids);
 		let update = { $set: { chatRoomIDs: ids } };
 
-		let doc = await ChatroomIDTrackerModel.findOneAndUpdate(query, update, options).lean();
+		doc = await ChatroomIDTrackerModel.findOneAndUpdate(query, update, options).lean();
 
 		console.log("RANDOM ID FOR CHATROOM GENERATED.");
 		let newChatRoom = new ChatRoomModel({
@@ -369,7 +369,7 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 			userTwoID: ''
 		});
 
-		let doc = await newChatRoom.save();
+		doc = await newChatRoom.save();
 
 		console.log("NEW CHATROOM MADE, FOR NO OPEN CHATROOMS. SENT:");
 		console.dir(doc);
@@ -409,7 +409,7 @@ async function findOpenChatRoom(userID) // finds a chatroom with an empty slot f
 			let query = { userTwoID: ""};
 			let update = { $set: { userTwoID: userID } };
 	
-			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
 	
 			if (docCheck(doc)) // a chatroom with the user two slot empty
 			{
