@@ -1,4 +1,4 @@
-let mongoose =require('mongoose');
+let mongoose = require('mongoose');
 let validator = require('validator');
 
 let messageSchema = new mongoose.Schema ({ // schema for each individual message
