@@ -4,7 +4,7 @@ import { connect } from "mongoose";
 const atlasURI = process.env.MONGODB_URI;  // proccess.env to acess heroku config vars 
 const localURI = 'mongodb://localhost:27017/chattingLocal';	
 
-class Database 
+export class Database 
 {
 	constructor() { this._connect(); }
 
@@ -20,4 +20,3 @@ class Database
 			})
 	}
 }
-module.exports = new Database();

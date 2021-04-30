@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var app = express_1.default();
 var cors_1 = __importDefault(require("cors"));
+var database_1 = require("./database");
 var chatRoom_1 = __importDefault(require("./schema/chatRoom")); // schema for the chatrooms
 var chatroomIDTracker_1 = __importDefault(require("./schema/chatroomIDTracker")); // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
 var endorsement_1 = __importDefault(require("./schema/endorsement")); // schema for tracking the endorsement level of users
@@ -349,6 +350,7 @@ app.listen(portNum, function () {
                 case 0:
                     _a.trys.push([0, 6, , 7]);
                     console.log("SERVER INITIATED on port number " + portNum);
+                    new database_1.Database();
                     return [4 /*yield*/, chatroomIDTracker_1.default.find({ id: '0' })];
                 case 1:
                     docs = _a.sent();

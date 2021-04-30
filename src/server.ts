@@ -5,6 +5,8 @@ import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
 
 import { Document } from 'mongoose';
 
+import { Database } from './database';
+
 import ChatRoomModel, { chatRoomDocument } from './schema/chatRoom'; // schema for the chatrooms
 import ChatroomIDTrackerModel from './schema/chatroomIDTracker'; // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
 import EndorsementModel from './schema/endorsement'; // schema for tracking the endorsement level of users
@@ -275,6 +277,8 @@ app.listen(portNum, async function()
 	try 
 	{
 		console.log("SERVER INITIATED on port number " + portNum);
+		
+		new Database();
 
 		let docs = await ChatroomIDTrackerModel.find({ id: '0' });
 

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Database = void 0;
 var mongoose_1 = require("mongoose");
 // was previously using Heroku's mLab add-on, mLab got migrated to atlas
 var atlasURI = process.env.MONGODB_URI; // proccess.env to acess heroku config vars 
@@ -19,5 +20,5 @@ var Database = /** @class */ (function () {
     };
     return Database;
 }());
-module.exports = new Database();
+exports.Database = Database;
 //# sourceMappingURL=database.js.map
