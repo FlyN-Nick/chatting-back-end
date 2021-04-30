@@ -1,7 +1,7 @@
 import express from 'express';
 const app = express();
 
-import cors, { CorsOptions, CorsOptionsDelegate, CorsRequest } from 'cors';
+import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
 
 import { Document } from 'mongoose';
 
