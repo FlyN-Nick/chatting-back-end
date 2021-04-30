@@ -1,75 +1,79 @@
-const { Console } = require('console');
-const express = require('express');
+import express from 'express';
 const app = express();
-const cors = require('cors');
-let database = require('./database');
-let ChatRoomModel = require('./schema/chatRoom');	 // schema for the chatrooms
-let ChatroomIDTrackerModel = require('./schema/chatroomIDTracker'); // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
-let EndorsementModel = require('./schema/endorsement'); // schema for tracking the endorsement level of users
-let EndorsementUserModel = require('./schema/endorsementUser');	 // schema for each endorsement-user pair
-let MessageModel = require('./schema/message');	 // schema for each individual message
+
+import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
+
+import { Document } from 'mongoose';
+
+import { Database } from './database';
+
+import ChatRoomModel, { chatRoomDocument } from './schema/chatRoom'; // schema for the chatrooms
+import ChatroomIDTrackerModel from './schema/chatroomIDTracker'; // schema for tracking all the chatroom ids that have been generated (so when a new chatroom is made, it can be made sure that the id is unique)
+import EndorsementModel from './schema/endorsement'; // schema for tracking the endorsement level of users
+import EndorsementUserModel from './schema/endorsementUser'; // schema for each endorsement-user pair
+import MessageModel from './schema/message'; // schema for each individual message
 
 console.log('May node be with you!') // *so* funny
 app.use(express.json());
 //app.use('*', cors());
 //app.options('*', cors());
-var whitelist = ['https://chat-n-5b27d.web.app', 'https://chat-n-5b27d.firebaseapp.com', 'https://flynchattin.web.app', 'https://flynchattin.firebaseapp.com'] // websites that are allowed to fetch from the backend (them being my frontend)
-var corsOptionsDelegate = function(req, callback)  // if the website is my frontend, cors is allowed
+const whitelist = ['https://chat-n-5b27d.web.app', 'https://chat-n-5b27d.firebaseapp.com', 'https://flynchattin.web.app', 'https://flynchattin.firebaseapp.com'] // websites that are allowed to fetch from the backend (them being my frontend)
+let corsOptionsDelegate: CorsOptionsDelegate = function(req, callback)  // if the website is my frontend, cors is allowed
 {
-  var corsOptions;
-  if (whitelist.indexOf(req.header('Origin')) !== -1) { corsOptions = { origin: true } } 
+  let corsOptions: CorsOptions;
+  if (whitelist.indexOf(req.headers.origin || "") !== -1) { corsOptions = { origin: true } } 
   else { corsOptions = { origin: false } }
   callback(null, corsOptions);
 };
 
 // all of these options requests are for cors preflight, and I use cors(corsOptionsDelegate) to only allow my frontend
-app.options('/find', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/find', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.options('/leave', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/leave', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.options('/get', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/get', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.options('/getEndorsementLevel', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/getEndorsementLevel', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.options('/endorse', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/endorse', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.options('/delete', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/delete', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.options('/send', cors(corsOptionsDelegate), function(req, res, next)
+app.options('/send', cors(corsOptionsDelegate), function(_req, res, _next)
 {
-	res.json({msg: 'Only websites from FlyN Nick are authorized.'})
+	res.json({ msg: 'Only websites from FlyN Nick are authorized.' })
 });
 
-app.get('/', function(req, res, next)
+app.get('/', function(_req, res, _next)
 {
-	res.json({msg: 'Welcome to the backend :)'})
+	res.json({ msg: 'Welcome to the backend :)' })
 });
 
-app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the user is finding a chatroom
+app.put('/find', cors(corsOptionsDelegate), async(req, res) => // if the user is finding a chatroom
 {
 	try 
 	{
+
 		console.log("FIND REQUEST OCCURED, RECEIVED:");
 		console.dir(req.body);
-
 		let docs = await ChatRoomModel.find({ userOneID: req.body.find });
 
 		if (docsCheck(docs)) // user was already in a chatroom and was in the userOneID slot (they refreshed the page, or they previously didn't leave a chatroom and got back onto the website)
@@ -91,10 +95,10 @@ app.put('/find', cors(corsOptionsDelegate), async(req, res, next) => // if the u
 			else { res.send(await findOpenChatRoom(req.body.find)) } // find a chatroom for the user because they weren't already in one 
 		}
 	}
-	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the user is leaving their chatroom
+app.put('/leave', cors(corsOptionsDelegate), async (req, res, _next) => // if the user is leaving their chatroom
 {
 	try 
 	{
@@ -109,11 +113,11 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 			let update = { $set: { userOneID: "" } };
 			let options = { new: true };
 
-			docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			let newDocs = await ChatRoomModel.findOneAndUpdate(query, update, options);
 
-			res.send(docs);
+			res.send(newDocs);
 			console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
-			console.dir(docs);
+			console.dir(newDocs);
 		}
 		else
 		{
@@ -121,21 +125,21 @@ app.put('/leave', cors(corsOptionsDelegate), async (req, res, next) => // if the
 			let update = { $set: { userTwoID: "" } };
 			let options = { new: true };
 
-			docs = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options) as chatRoomDocument;
 			
-			if (docsCheck(docs)) // ! changed from docCheck
+			if (docCheck(doc))
 			{
-				res.send(docs);
+				res.send(doc);
 				console.log("CHATTER SUCCESFULLY REMOVED FROM CHATTROOM. SENT:");
-				console.dir(docs); 
+				console.dir(doc); 
 			}
 			else { console.error("ERROR: Chatter requested to leave the chatroom, but wasn't in it..."); }
 		}
 	} 
-	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the user is getting the chatroom (checking for new messages)
+app.put('/get', cors(corsOptionsDelegate), async(req, res, _next) => // if the user is getting the chatroom (checking for new messages)
 {
 	try 
 	{
@@ -152,10 +156,10 @@ app.put('/get', cors(corsOptionsDelegate), async(req, res, next) => // if the us
 		}
 		else { console.error("ERROR: Chatter's chatroom could not be get..."); }
 	}
-	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next) => // if the user is getting their endorsement level 
+app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, _next) => // if the user is getting their endorsement level 
 {
 	try 
 	{
@@ -167,7 +171,7 @@ app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next
 		if (docsCheck(docs))
 		{
 			let endorsements = docs[0].Endorsements
-			for (endorsement of endorsements)
+			for (let endorsement of endorsements)
 			{
 				if (endorsement.id == req.body.userID)
 				{
@@ -180,10 +184,10 @@ app.put('/getEndorsementLevel', cors(corsOptionsDelegate), async (req, res, next
 		}
 		else { console.error("ERROR: Endorsements cannot be get...") }
 	}
-	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.put('/endorse', cors(corsOptionsDelegate), async (req, res, next) => // endorses user 
+app.put('/endorse', cors(corsOptionsDelegate), async (req, _res, _next) => // endorses user 
 {
 	try 
 	{
@@ -191,10 +195,10 @@ app.put('/endorse', cors(corsOptionsDelegate), async (req, res, next) => // endo
 		console.dir(req.body);
 		await endorser(req.body.userID, true);
 	}
-	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if the user is deleting (a) message(s) in their chatroom
+app.put('/delete', cors(corsOptionsDelegate), async (req, res, _next) => // if the user is deleting (a) message(s) in their chatroom
 {
 	try 
 	{
@@ -204,7 +208,7 @@ app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if th
 		let update = { $set: { messages: req.body.messages } };
 		let options = { new: true };
 
-		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options) as chatRoomDocument;
 
 		if (docCheck(doc))
 		{
@@ -218,10 +222,10 @@ app.put('/delete', cors(corsOptionsDelegate), async (req, res, next) => // if th
 			console.dir(doc);
 		}
 	} 
-	catch (err) { consoler.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
 });
 
-app.post('/send', cors(corsOptionsDelegate), async (req, res, next) => // if the user is sending a message
+app.post('/send', cors(corsOptionsDelegate), async (req, res, _next) => // if the user is sending a message
 {
 	try
 	{
@@ -242,7 +246,7 @@ app.post('/send', cors(corsOptionsDelegate), async (req, res, next) => // if the
 			let update = { $set: { messages: messages } };
 			let options = { new: true };
 
-			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			let doc = await ChatRoomModel.findOneAndUpdate(query, update, options) as chatRoomDocument;
 			
 			if (docCheck(doc))
 			{
@@ -273,6 +277,8 @@ app.listen(portNum, async function()
 	try 
 	{
 		console.log("SERVER INITIATED on port number " + portNum);
+		
+		new Database();
 
 		let docs = await ChatroomIDTrackerModel.find({ id: '0' });
 
@@ -294,12 +300,12 @@ app.listen(portNum, async function()
 			console.dir(doc);
 		}
 
-		docs = await EndorsementModel.find({ id: '0' });
+		let newDocs = await EndorsementModel.find({ id: '0' });
 
-		if (docsCheck(docs))
+		if (docsCheck(newDocs))
 		{
 			console.log("There was already an EndorsementModel:");
-			console.dir(docs);
+			console.dir(newDocs);
 		}
 		else
 		{
@@ -323,10 +329,10 @@ app.listen(portNum, async function()
 /**
  * Makes a new chatroom.
  * 
- * @param {string} userID The id of the user making the new chatroom.
- * @returns {Document} The new chatroom.
+ * @param userID The id of the user making the new chatroom.
+ * @returns The new chatroom.
  */
-async function makeNewChatRoom(userID) // makes a new chatroom
+async function makeNewChatRoom(userID: string): Promise<chatRoomDocument>// makes a new chatroom
 {
 	try 
 	{
@@ -369,22 +375,26 @@ async function makeNewChatRoom(userID) // makes a new chatroom
 			userTwoID: ''
 		});
 
-		doc = await newChatRoom.save();
+		let newDoc = await newChatRoom.save();
 
 		console.log("NEW CHATROOM MADE, FOR NO OPEN CHATROOMS. SENT:");
-		console.dir(doc);
-		return doc;
+		console.dir(newDoc);
+		return newDoc;
 	}
-	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) 
+	{ 
+		console.error(`CAUGHT ERROR: ${err}`);
+		throw(err);
+	}
 }
 
 /**
  * Finds a chatroom with an empty slot for the user or just makes a new one if not possible.
  * 
- * @param {string} userID The id of the user finding an open chatroom.
- * @returns {Document} The chatroom found (or created).
+ * @param userID The id of the user finding an open chatroom.
+ * @returns The chatroom found (or created).
  */
-async function findOpenChatRoom(userID) // finds a chatroom with an empty slot for the user or just makes a new one if not possible
+async function findOpenChatRoom(userID: string): Promise<chatRoomDocument> // finds a chatroom with an empty slot for the user or just makes a new one if not possible
 {
 	try
 	{
@@ -394,7 +404,7 @@ async function findOpenChatRoom(userID) // finds a chatroom with an empty slot f
 		let update = { $set: { userOneID: userID } };
 		let options = { new: true };
 	
-		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+		let doc = await ChatRoomModel.findOneAndUpdate(query, update, options) as chatRoomDocument;
 	
 		if (docCheck(doc)) // a chatroom with the user one slot empty
 		{
@@ -409,7 +419,7 @@ async function findOpenChatRoom(userID) // finds a chatroom with an empty slot f
 			let query = { userTwoID: ""};
 			let update = { $set: { userTwoID: userID } };
 	
-			doc = await ChatRoomModel.findOneAndUpdate(query, update, options);
+			doc = await ChatRoomModel.findOneAndUpdate(query, update, options) as chatRoomDocument;
 	
 			if (docCheck(doc)) // a chatroom with the user two slot empty
 			{
@@ -425,16 +435,20 @@ async function findOpenChatRoom(userID) // finds a chatroom with an empty slot f
 			}
 		}
 	}
-	catch (err) { console.error(`CAUGHT ERROR: ${err}`) }
+	catch (err) 
+	{ 
+		console.error(`CAUGHT ERROR: ${err}`);
+		throw(err);
+	}
 }
 
 /**
  * Checks if what mongoose returned a legitimate document.
  * 
- * @param {Document} doc The document you are checking.
- * @returns {boolean} The validity of the document.
+ * @param doc The document you are checking.
+ * @returns The validity of the document.
  */
- function docCheck(doc)
+ function docCheck(doc: Document<any>): boolean
  {
 	 if ((doc == null) || (doc == undefined)|| (doc._id == null)) { return false }
 	 else if (doc) { return true }
@@ -445,10 +459,10 @@ async function findOpenChatRoom(userID) // finds a chatroom with an empty slot f
  * Checks if mongoose returned a legitimate array of documents or not.
  * Same thing as docCheck, but for when mongoose returns an array (typically of length 1) of docs.
  * 
- * @param {Document[]} docs The docs you are checking.
- * @returns {boolean} The validity of the documents.
+ * @param docs The docs you are checking.
+ * @returns The validity of the documents.
  */
-function docsCheck(docs) 
+function docsCheck(docs: Document<any>[]): boolean 
 {
 	if ((docs == null) || (docs == undefined)) { return false }
 	else { return (docs.length > 0) }
@@ -461,10 +475,10 @@ function docsCheck(docs)
  * If endorse is true:
  * - Makes sure that the user is being tracked by the endorsement tracker, add them if not, and increases their endorsement level by one.
  * 
- * @param {string} userID 
- * @param {boolean} endorse The function mode.
+ * @param userID 
+ * @param endorse The function mode.
  */
-async function endorser(userID, endorse) 
+async function endorser(userID: string, endorse: boolean) 
 {
 	try 
 	{
@@ -472,7 +486,7 @@ async function endorser(userID, endorse)
 
 		let endorsements = docs[0].Endorsements;
 		let beingTracked = false;
-		for (endorsement of endorsements)
+		for (let endorsement of endorsements)
 		{
 			if (endorsement.id == userID)
 			{
