@@ -9,7 +9,7 @@ export interface chatroomIDTrackerDocument extends Document {
 	 */
 	id: string,
 	/** All of the used chatroom ids. */
-	chatRoomIds: string[]
+	chatRoomIDs: string[]
 }
 
 /** Schema for the tracker used for generating unique chat room ids */
