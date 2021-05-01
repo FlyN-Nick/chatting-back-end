@@ -4,8 +4,9 @@
   "description": "An anonymous chatting app to learn full stack web development.",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "author": "FlyN Nick",
   "license": "MIT",
