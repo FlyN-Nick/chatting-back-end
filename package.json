@@ -2,7 +2,7 @@
   "name": "chatting-back-end",
   "version": "1.0.0",
   "description": "An anonymous chatting app to learn full stack web development.",
-  "main": "dist/server.js",
+  "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
