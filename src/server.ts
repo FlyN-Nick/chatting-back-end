@@ -4,6 +4,7 @@ const app = express();
 import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
 
 import { Document } from 'mongoose';
+import { Mongoose } from 'mongoose';
 
 import { Database } from './database';
 
@@ -383,6 +384,7 @@ async function makeNewChatRoom(userID: string): Promise<chatRoomDocument>// make
 	}
 	catch (err) 
 	{ 
+		console.log("Erroring here?");
 		console.error(`CAUGHT ERROR: ${err}`);
 		throw(err);
 	}
@@ -416,7 +418,7 @@ async function findOpenChatRoom(userID: string): Promise<chatRoomDocument> // fi
 		{
 			console.log("NO CHATROOM WITH USER ONE SLOT AVAILABLE:")
 			console.dir(doc);
-			let query = { userTwoID: ""};
+			let query = { userTwoID: "" };
 			let update = { $set: { userTwoID: userID } };
 	
 			doc = await ChatRoomModel.findOneAndUpdate(query, update, options) as chatRoomDocument;

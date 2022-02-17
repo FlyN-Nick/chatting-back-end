@@ -12,7 +12,10 @@ var Database = /** @class */ (function () {
     Database.prototype._connect = function () {
         // if the backend is being run locally it'll just use the variable localURI 
         mongoose_1.connect(atlasURI || localURI, { useUnifiedTopology: true, useNewUrlParser: true })
-            .then(function () { console.log('Database connection successful'); })
+            .then(function (mong) {
+            console.log('Database connection successful');
+            mong.Schema.Types.String.checkRequired(function (v) { return v != null; }); // changing this behavior, because mongoose now treats empty strings as null
+        })
             .catch(function (err) {
             console.error('Database connection error:');
             console.error(err);

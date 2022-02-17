@@ -1,6 +1,6 @@
 {
   "name": "chatting-back-end",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An anonymous chatting app to learn full stack web development.",
   "main": "index.js",
   "scripts": {

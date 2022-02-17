@@ -12,7 +12,11 @@ export class Database
 	{
 		// if the backend is being run locally it'll just use the variable localURI 
 		connect(atlasURI || localURI , { useUnifiedTopology: true, useNewUrlParser: true })
-			.then( () => { console.log('Database connection successful'); } )
+			.then( mong => 
+			{ 
+				console.log('Database connection successful'); 
+				mong.Schema.Types.String.checkRequired(v => v != null); // changing this behavior, because mongoose now treats empty strings as null
+			})
 			.catch(err => 
 			{
 				console.error('Database connection error:');
