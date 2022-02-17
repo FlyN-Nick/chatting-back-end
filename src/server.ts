@@ -384,7 +384,6 @@ async function makeNewChatRoom(userID: string): Promise<chatRoomDocument>// make
 	}
 	catch (err) 
 	{ 
-		console.log("Erroring here?");
 		console.error(`CAUGHT ERROR: ${err}`);
 		throw(err);
 	}

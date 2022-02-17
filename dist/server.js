@@ -455,7 +455,6 @@ function makeNewChatRoom(userID) {
                     return [2 /*return*/, newDoc];
                 case 4:
                     err_9 = _a.sent();
-                    console.log("Erroring here?");
                     console.error("CAUGHT ERROR: " + err_9);
                     throw (err_9);
                 case 5: return [2 /*return*/];
